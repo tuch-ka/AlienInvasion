@@ -1,9 +1,12 @@
 import pygame
 
+from ship import Ship
+
 
 class ScoreBoard(object):
     """Класс для вывода игровой информации."""
     def __init__(self, game):
+        self.game = game
         self.screen = game.screen
         self.screen_rect = self.screen.get_rect()
         self.settings = game.settings
@@ -14,6 +17,8 @@ class ScoreBoard(object):
 
         self.prep_score()
         self.prep_high_score()
+        self.prep_level()
+        self.prep_ships()
 
     def prep_level(self):
         """Преобразует уровень в графическое изображение."""
@@ -28,6 +33,15 @@ class ScoreBoard(object):
         self.level_rect = self.level_image.get_rect()
         self.level_rect.right = self.score_rect.right
         self.level_rect.top = self.score_rect.bottom + 10
+
+    def prep_ships(self):
+        """Сообщает количество оставшихся кораблей."""
+        self.ships = pygame.sprite.Group()
+        for ship_number in range(self.stats.ships_left):
+            ship = Ship(game=self.game)
+            ship.rect.x = 10 + ship_number * ship.rect.width
+            ship.rect.y = 10
+            self.ships.add(ship)
 
     def prep_score(self):
         """Преобразует текущий счет в графическое изображение."""
@@ -78,3 +92,4 @@ class ScoreBoard(object):
             self.level_image,
             self.level_rect,
         )
+        self.ships.draw(self.screen)

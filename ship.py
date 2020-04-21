@@ -1,9 +1,10 @@
 import pygame
 
 
-class Ship(object):
+class Ship(pygame.sprite.Sprite):
     """Класс управления кораблём."""
     def __init__(self, game):
+        super().__init__()
         self.settings = game.settings
 
         self.screen = game.screen
