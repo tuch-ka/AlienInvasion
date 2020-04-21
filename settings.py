@@ -10,6 +10,7 @@ class Settings(object):
 
         # Настройки корабля
         self.ship_speed = 1.5
+        self.ship_limit = 3
 
         # Настройки снаряда
         self.bullet_speed = 1
