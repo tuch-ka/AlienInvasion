@@ -1,5 +1,6 @@
 """
 Основной модуль. Запуск игры.
+# TODO: реализовать изменение скорости стрелками вверх/вниз
 """
 import sys
 
@@ -21,9 +22,17 @@ class AlienInvasion(object):
         self.settings = Settings()
 
         self.background_color = self.settings.background_color
-        self.screen = pygame.display.set_mode(
-            (self.settings.screen_width, self.settings.screen_height)
-        )
+
+        if self.settings.fullscreen:
+            self.screen = pygame.display.set_mode(
+                (0, 0),
+                pygame.FULLSCREEN
+            )
+
+        else:
+            self.screen = pygame.display.set_mode(
+                (self.settings.screen_width, self.settings.screen_height)
+            )
 
         self.ship = Ship(self)
 
@@ -32,6 +41,26 @@ class AlienInvasion(object):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
+
+            elif event.type == pygame.KEYDOWN:
+                self._check_keydown_events(event)
+
+            elif event.type == pygame.KEYUP:
+                self._check_keyup_events(event)
+
+    def _check_keydown_events(self, event):
+        if event.key == pygame.K_RIGHT:
+            self.ship.moving_right = True
+        elif event.key == pygame.K_LEFT:
+            self.ship.moving_left = True
+        elif event.key == pygame.K_q:
+            sys.exit()
+
+    def _check_keyup_events(self, event):
+        if event.key == pygame.K_RIGHT:
+            self.ship.moving_right = False
+        elif event.key == pygame.K_LEFT:
+            self.ship.moving_left = False
 
     def _update_screen(self):
         """Обновляет изображения на экране и отображает новый экран."""
@@ -44,6 +73,7 @@ class AlienInvasion(object):
         """Запуск основного цикла игры."""
         while True:
             self._check_events()
+            self.ship.update()
             self._update_screen()
 
 
