@@ -17,3 +17,9 @@ class Settings(object):
         self.bullet_height = 15
         self.bullet_color = (60, 60, 60)
         self.max_bullets = 3
+
+        # Настройки пришельцев
+        self.alien_speed = 1.0
+        self.fleet_speed = 10
+        #   1 обозначает движение вправо; а -1 - влево.
+        self.fleet_direction = 1
