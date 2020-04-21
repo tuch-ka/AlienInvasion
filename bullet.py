@@ -31,3 +31,16 @@ class Bullet(pygame.sprite.Sprite):
             self.color,
             self.rect
         )
+
+
+class MegaBullet(Bullet):
+    """Мощный читерский снаряд."""
+    def __init__(self, game):
+        super().__init__(game)
+        self.color = (255, 0, 0)
+
+        self.rect = pygame.Rect(
+            *game.ship.rect.midtop,
+            50,
+            50,
+        )
