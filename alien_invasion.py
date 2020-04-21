@@ -93,6 +93,7 @@ class AlienInvasion(object):
         """Запускает новую игру при нажатии кнопки Play."""
         if self.play_button.rect.collidepoint(position) and not self.stats.game_active:
             self.stats.reset_stats()
+            self.settings.init_dynamic_settings()
             self.stats.game_active = True
 
             self.aliens.empty()
@@ -119,6 +120,7 @@ class AlienInvasion(object):
             self.bullets.empty()
             self.mega_bullets.empty()
             self._create_fleet()
+            self.settings.increase_speed()
 
     def _check_fleet_edges(self):
         """Реагирует на достижение пришельцем края экрана."""
