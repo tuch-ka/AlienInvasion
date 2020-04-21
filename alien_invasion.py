@@ -6,6 +6,7 @@ import sys
 import pygame
 
 from settings import Settings
+from ship import Ship
 
 
 class AlienInvasion(object):
@@ -24,6 +25,8 @@ class AlienInvasion(object):
             (self.settings.screen_width, self.settings.screen_height)
         )
 
+        self.ship = Ship(self)
+
     def run_game(self):
         """Запуск основного цикла игры."""
         while True:
@@ -32,6 +35,8 @@ class AlienInvasion(object):
                     sys.exit()
 
             self.screen.fill(self.background_color)
+            self.ship.blitme()
+
             pygame.display.flip()
 
 
