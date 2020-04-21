@@ -99,6 +99,7 @@ class AlienInvasion(object):
             self.settings.init_dynamic_settings()
             self.stats.game_active = True
             self.score.prep_score()
+            self.score.prep_level()
 
             self.aliens.empty()
             self.bullets.empty()
@@ -130,7 +131,10 @@ class AlienInvasion(object):
             self.bullets.empty()
             self.mega_bullets.empty()
             self._create_fleet()
+
             self.settings.increase_speed()
+            self.stats.level += 1
+            self.score.prep_level()
 
     def _check_fleet_edges(self):
         """Реагирует на достижение пришельцем края экрана."""
