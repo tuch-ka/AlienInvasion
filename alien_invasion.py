@@ -69,7 +69,7 @@ class AlienInvasion(object):
         elif event.key == pygame.K_LEFT:
             self.ship.moving_left = True
 
-        elif event.key == pygame.K_q:
+        elif event.key == pygame.K_q or event.key == pygame.K_ESCAPE:
             sys.exit()
 
         elif event.key == pygame.K_SPACE:
@@ -225,7 +225,7 @@ class AlienInvasion(object):
             self._create_fleet()
             self.ship.center_ship()
 
-            time.sleep(3)
+            time.sleep(2)
 
         else:
             self.stats.game_active = False
