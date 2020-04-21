@@ -10,7 +10,7 @@ import pygame
 
 from settings import Settings
 from ship import Ship
-from bullet import Bullet
+from bullet import Bullet, MegaBullet
 from alien import Alien
 
 
@@ -40,6 +40,7 @@ class AlienInvasion(object):
 
         self.ship = Ship(self)
         self.bullets = pygame.sprite.Group()
+        self.mega_bullets = pygame.sprite.Group()
         self.aliens = pygame.sprite.Group()
 
         self._create_fleet()
@@ -70,11 +71,38 @@ class AlienInvasion(object):
         elif event.key == pygame.K_SPACE:
             self._fire_bullet()
 
+        elif event.key == pygame.K_z:
+            self._fire_mega_bullet()
+
     def _check_keyup_events(self, event):
         if event.key == pygame.K_RIGHT:
             self.ship.moving_right = False
         elif event.key == pygame.K_LEFT:
             self.ship.moving_left = False
+
+    def _check_bullet_alien_collisions(self):
+
+        # Проверка попаданий в пришельцев.
+        collisions = pygame.sprite.groupcollide(
+            self.bullets,
+            self.aliens,
+            True,
+            True,
+        )
+
+        self._using_mega_bullets()
+
+        if not self.aliens:
+            self.bullets.empty()
+            self.mega_bullets.empty()
+            self._create_fleet()
+
+    def _check_fleet_edges(self):
+        """Реагирует на достижение пришельцем края экрана."""
+        for alien in self.aliens.sprites():
+            if alien.check_edges():
+                self._change_fleet_direction()
+                break
 
     def _update_bullets(self):
         """Обновляет позиции снарядов."""
@@ -85,12 +113,28 @@ class AlienInvasion(object):
             if bullet.rect.bottom <= 0:
                 self.bullets.remove(bullet)
 
+        self._check_bullet_alien_collisions()
+
+    def _update_aliens(self):
+        """Обновляет позиции всех пришельцев во флоте."""
+        self._check_fleet_edges()
+        self.aliens.update()
+
+        # Проверка коллизий "пришелец — корабль".
+        if pygame.sprite.spritecollideany(
+            self.ship,
+            self.aliens
+        ):
+            print('SHIT!')
+
     def _update_screen(self):
         """Обновляет изображения на экране и отображает новый экран."""
         self.screen.fill(self.background_color)
         self.ship.blitme()
         for bullet in self.bullets.sprites():
             bullet.draw_bullet()
+        for mega_bullet in self.mega_bullets.sprites():
+            mega_bullet.draw_bullet()
         self.aliens.draw(self.screen)
 
         pygame.display.flip()
@@ -102,13 +146,18 @@ class AlienInvasion(object):
                 Bullet(self)
             )
 
-    def _create_alien(self, alien_number, row_numer):
+    def _fire_mega_bullet(self):
+        self.mega_bullets.add(
+            MegaBullet(self)
+        )
+
+    def _create_alien(self, alien_number, row_number):
         """Создание пришельца и размещение его в ряду."""
         alien = Alien(self)
         alien_width, alien_height = alien.rect.size
         alien.x = alien_width + 2 * alien_width * alien_number
         alien.rect.x = alien.x
-        alien.rect.y = alien.rect.height + 2 * alien.rect.height * row_numer
+        alien.rect.y = alien.rect.height + 2 * alien.rect.height * row_number
         self.aliens.add(alien)
 
     def _create_fleet(self):
@@ -130,12 +179,34 @@ class AlienInvasion(object):
             for alien_number in range(number_of_aliens_x):
                 self._create_alien(alien_number, row_number)
 
+    def _change_fleet_direction(self):
+        """Опускает весь флот и меняет направление флота."""
+        for alien in self.aliens.sprites():
+            alien.rect.y += self.settings.fleet_speed
+        self.settings.fleet_direction *= -1
+
+    def _using_mega_bullets(self):
+        # Обработка читерских пуль
+        self.mega_bullets.update()
+
+        for mega_bullet in self.mega_bullets.copy():
+            if mega_bullet.rect.bottom <= 0:
+                self.mega_bullets.remove(mega_bullet)
+
+        pygame.sprite.groupcollide(
+            self.mega_bullets,
+            self.aliens,
+            False,
+            True,
+        )
+
     def run_game(self):
         """Запуск основного цикла игры."""
         while True:
             self._check_events()
             self.ship.update()
             self._update_bullets()
+            self._update_aliens()
 
             self._update_screen()
 
