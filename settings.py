@@ -36,10 +36,13 @@ class Settings(object):
         self.alien_speed = 1.0
         #   1 обозначает движение вправо; а -1 - влево.
         self.fleet_direction = 1
+        # Подсчет очков
+        self.alien_points = 50
 
     def increase_speed(self):
         """Увеличивает настройки скокрости."""
         self.ship_speed *= self.speed_up
         self.bullet_speed *= self.speed_up
         self.alien_speed *= self.speed_up
+        self.alien_points += 25
 

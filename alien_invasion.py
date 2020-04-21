@@ -12,6 +12,8 @@ import pygame
 from settings import Settings
 from game_stats import GameStats
 from buttons import PlayButton
+from scoreboard import ScoreBoard
+
 from ship import Ship
 from bullet import Bullet, MegaBullet
 from alien import Alien
@@ -42,6 +44,7 @@ class AlienInvasion(object):
             )
 
         self.stats = GameStats(self)
+        self.score = ScoreBoard(self)
         self.play_button = PlayButton(self, 'Play')
 
         self.ship = Ship(self)
@@ -95,6 +98,7 @@ class AlienInvasion(object):
             self.stats.reset_stats()
             self.settings.init_dynamic_settings()
             self.stats.game_active = True
+            self.score.prep_score()
 
             self.aliens.empty()
             self.bullets.empty()
@@ -113,6 +117,12 @@ class AlienInvasion(object):
             True,
             True,
         )
+
+        if collisions:
+            for aliens in collisions.values():
+                self.stats.score += self.settings.alien_points * len(aliens)
+            self.score.prep_score()
+            self.score.check_high_score()
 
         self._using_mega_bullets()
 
@@ -171,6 +181,9 @@ class AlienInvasion(object):
         for mega_bullet in self.mega_bullets.sprites():
             mega_bullet.draw_bullet()
         self.aliens.draw(self.screen)
+
+        # Вывод информации о счете.
+        self.score.show_score()
 
         if not self.stats.game_active:
             self.play_button.draw_button()
