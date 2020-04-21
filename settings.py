@@ -3,7 +3,7 @@ class Settings(object):
 
     def __init__(self):
         # Настройки экрана
-        self.fullscreen = True
+        self.fullscreen = False
         self.screen_width = 1200
         self.screen_height = 800
         self.background_color = (230, 230, 230)
@@ -16,3 +16,4 @@ class Settings(object):
         self.bullet_width = 3
         self.bullet_height = 15
         self.bullet_color = (60, 60, 60)
+        self.max_bullets = 3
