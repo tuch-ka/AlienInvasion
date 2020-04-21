@@ -11,6 +11,7 @@ import pygame
 from settings import Settings
 from ship import Ship
 from bullet import Bullet
+from alien import Alien
 
 
 class AlienInvasion(object):
@@ -39,6 +40,9 @@ class AlienInvasion(object):
 
         self.ship = Ship(self)
         self.bullets = pygame.sprite.Group()
+        self.aliens = pygame.sprite.Group()
+
+        self._create_fleet()
 
     def _check_events(self):
         """Обрабатывает нажатия клавиш и события мыши."""
@@ -87,6 +91,7 @@ class AlienInvasion(object):
         self.ship.blitme()
         for bullet in self.bullets.sprites():
             bullet.draw_bullet()
+        self.aliens.draw(self.screen)
 
         pygame.display.flip()
 
@@ -96,6 +101,34 @@ class AlienInvasion(object):
             self.bullets.add(
                 Bullet(self)
             )
+
+    def _create_alien(self, alien_number, row_numer):
+        """Создание пришельца и размещение его в ряду."""
+        alien = Alien(self)
+        alien_width, alien_height = alien.rect.size
+        alien.x = alien_width + 2 * alien_width * alien_number
+        alien.rect.x = alien.x
+        alien.rect.y = alien.rect.height + 2 * alien.rect.height * row_numer
+        self.aliens.add(alien)
+
+    def _create_fleet(self):
+        """Создание флота вторжения."""
+        # Создание одного пришельца, не включенного во флот,
+        # для расчета максимального количествыа пришельцев в ряду
+        # TODO: оптипизировать
+        alien = Alien(self)
+        alien_width, alien_height = alien.rect.size
+        available_space_x = self.settings.screen_width - (2 * alien_width)
+        number_of_aliens_x = available_space_x // (2 * alien_width)
+        available_space_y = (
+                self.settings.screen_height - (3 * alien_height) - self.ship.rect.height
+        )
+        number_of_rows_y = available_space_y // (2 * alien_height)
+
+        # Создание флота пришельцев.
+        for row_number in range(number_of_rows_y):
+            for alien_number in range(number_of_aliens_x):
+                self._create_alien(alien_number, row_number)
 
     def run_game(self):
         """Запуск основного цикла игры."""
