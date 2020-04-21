@@ -5,10 +5,12 @@
 # TODO: добавть autofire на capslock
 """
 import sys
+import time
 
 import pygame
 
 from settings import Settings
+from game_stats import GameStats
 from ship import Ship
 from bullet import Bullet, MegaBullet
 from alien import Alien
@@ -37,6 +39,8 @@ class AlienInvasion(object):
             self.screen = pygame.display.set_mode(
                 (self.settings.screen_width, self.settings.screen_height)
             )
+
+        self.stats = GameStats(self)
 
         self.ship = Ship(self)
         self.bullets = pygame.sprite.Group()
@@ -104,6 +108,14 @@ class AlienInvasion(object):
                 self._change_fleet_direction()
                 break
 
+    def _check_aliens_bottom(self):
+        """Проверяет, добрались ли пришельцы до нижнего края экрана."""
+        screen_rect = self.screen.get_rect()
+        for alien in self.aliens.sprites():
+            if alien.rect.bottom >= screen_rect.bottom:
+                self._ship_hit()
+                break
+
     def _update_bullets(self):
         """Обновляет позиции снарядов."""
         self.bullets.update()
@@ -125,7 +137,9 @@ class AlienInvasion(object):
             self.ship,
             self.aliens
         ):
-            print('SHIT!')
+            self._ship_hit()
+
+        self._check_aliens_bottom()
 
     def _update_screen(self):
         """Обновляет изображения на экране и отображает новый экран."""
@@ -200,13 +214,31 @@ class AlienInvasion(object):
             True,
         )
 
+    def _ship_hit(self):
+        """Обрабатывает столкновение корабля с пришельцем."""
+        self.stats.ships_left -= 1
+        if self.stats.ships_left > 0:
+
+            self.aliens.empty()
+            self.bullets.empty()
+
+            self._create_fleet()
+            self.ship.center_ship()
+
+            time.sleep(3)
+
+        else:
+            self.stats.game_active = False
+
     def run_game(self):
         """Запуск основного цикла игры."""
         while True:
             self._check_events()
-            self.ship.update()
-            self._update_bullets()
-            self._update_aliens()
+
+            if self.stats.game_active:
+                self.ship.update()
+                self._update_bullets()
+                self._update_aliens()
 
             self._update_screen()
 
