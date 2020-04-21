@@ -11,6 +11,7 @@ import pygame
 
 from settings import Settings
 from game_stats import GameStats
+from buttons import PlayButton
 from ship import Ship
 from bullet import Bullet, MegaBullet
 from alien import Alien
@@ -41,6 +42,7 @@ class AlienInvasion(object):
             )
 
         self.stats = GameStats(self)
+        self.play_button = PlayButton(self, 'Play')
 
         self.ship = Ship(self)
         self.bullets = pygame.sprite.Group()
@@ -60,6 +62,9 @@ class AlienInvasion(object):
 
             elif event.type == pygame.KEYUP:
                 self._check_keyup_events(event)
+
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                self._check_play_button(pygame.mouse.get_pos())
 
     def _check_keydown_events(self, event):
 
@@ -83,6 +88,20 @@ class AlienInvasion(object):
             self.ship.moving_right = False
         elif event.key == pygame.K_LEFT:
             self.ship.moving_left = False
+
+    def _check_play_button(self, position):
+        """Запускает новую игру при нажатии кнопки Play."""
+        if self.play_button.rect.collidepoint(position) and not self.stats.game_active:
+            self.stats.reset_stats()
+            self.stats.game_active = True
+
+            self.aliens.empty()
+            self.bullets.empty()
+
+            self._create_fleet()
+            self.ship.center_ship()
+
+            pygame.mouse.set_visible(False)
 
     def _check_bullet_alien_collisions(self):
 
@@ -150,6 +169,9 @@ class AlienInvasion(object):
         for mega_bullet in self.mega_bullets.sprites():
             mega_bullet.draw_bullet()
         self.aliens.draw(self.screen)
+
+        if not self.stats.game_active:
+            self.play_button.draw_button()
 
         pygame.display.flip()
 
@@ -229,6 +251,7 @@ class AlienInvasion(object):
 
         else:
             self.stats.game_active = False
+            pygame.mouse.set_visible(True)
 
     def run_game(self):
         """Запуск основного цикла игры."""
